@@ -1,0 +1,275 @@
+@model EmployeeManagement.ViewModels.EmployeeDashboardViewModel
+@{
+    ViewData["Title"] = "Employee Dashboard";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">My Dashboard</h2>
+        <p class="text-muted mb-0">Welcome back, <strong>@Model.EmployeeName</strong> &bull; <span class="badge bg-secondary badge-role">@Model.DepartmentName</span></p>
+    </div>
+    <div>
+        <a asp-controller="Tasks" asp-action="MyTasks" class="btn btn-primary btn-sm px-3 shadow-sm">
+            <i class="bi bi-list-check me-1"></i> Full Task Board
+        </a>
+    </div>
+</div>
+
+<!-- Quick Stat Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card stat-card border-start border-4 border-primary">
+            <div class="card-body">
+                <span class="text-muted text-uppercase fw-semibold" style="font-size: 0.72rem;">Assigned Tasks</span>
+                <div class="d-flex justify-content-between align-items-baseline mt-2">
+                    <h3 class="fw-bold mb-0">@Model.AssignedTasksCount</h3>
+                    <i class="bi bi-briefcase text-primary fs-3"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card stat-card border-start border-4 border-info">
+            <div class="card-body">
+                <span class="text-muted text-uppercase fw-semibold" style="font-size: 0.72rem;">In Progress</span>
+                <div class="d-flex justify-content-between align-items-baseline mt-2">
+                    <h3 class="fw-bold mb-0 text-info">@Model.InProgressTasksCount</h3>
+                    <i class="bi bi-hourglass-split text-info fs-3"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card stat-card border-start border-4 border-success">
+            <div class="card-body">
+                <span class="text-muted text-uppercase fw-semibold" style="font-size: 0.72rem;">Completed</span>
+                <div class="d-flex justify-content-between align-items-baseline mt-2">
+                    <h3 class="fw-bold mb-0 text-success">@Model.CompletedTasksCount</h3>
+                    <span class="badge bg-success bg-opacity-10 text-success">@Model.CompletionRate% Done</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card stat-card border-start border-4 border-danger">
+            <div class="card-body">
+                <span class="text-muted text-uppercase fw-semibold" style="font-size: 0.72rem;">Overdue Deadlines</span>
+                <div class="d-flex justify-content-between align-items-baseline mt-2">
+                    <h3 class="fw-bold mb-0 text-danger">@Model.OverdueTasksCount</h3>
+                    <i class="bi bi-exclamation-diamond text-danger fs-3"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Performance Gauge & Active Tasks -->
+<div class="row g-3 mb-4">
+    <!-- Productivity Score Summary Card -->
+    <div class="col-lg-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <span><i class="bi bi-speedometer me-1 text-primary"></i> Personal Productivity Score</span>
+            </div>
+            <div class="card-body text-center p-4 d-flex flex-column justify-content-center">
+                <div class="position-relative d-inline-block mx-auto mb-3" style="width: 140px; height: 140px;">
+                    <canvas id="productivityGauge"></canvas>
+                    <div class="position-absolute top-50 start-50 translate-middle text-center">
+                        <span class="fs-2 fw-bold text-dark">@Model.ProductivityScore</span>
+                        <div class="text-muted" style="font-size: 0.7rem;">OUT OF 100</div>
+                    </div>
+                </div>
+
+                <h5 class="fw-bold mb-1">
+                    @(Model.ProductivityScore >= 80 ? "Outstanding Performance! 🌟" : Model.ProductivityScore >= 60 ? "Good Consistency 👍" : "Needs Attention ⚠️")
+                </h5>
+                <p class="text-muted small mb-3">
+                    Calculated from completion rate (@Model.CompletionRate%), ongoing task momentum, and overdue penalty.
+                </p>
+
+                <div class="p-3 bg-light rounded-3 text-start small">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted">Task Completion Rate:</span>
+                        <strong>@Model.CompletionRate%</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted">Overdue Penalties:</span>
+                        <span class="text-danger">-@(Model.OverdueTasksCount * 8) pts</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">Completed Tasks:</span>
+                        <span>@Model.CompletedTasksCount of @Model.AssignedTasksCount</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Tasks Table -->
+    <div class="col-lg-8">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-clock-history me-1 text-primary"></i> My Active Tasks</span>
+                <a asp-controller="Tasks" asp-action="MyTasks" class="btn btn-link btn-sm text-decoration-none p-0">View All</a>
+            </div>
+            <div class="card-body p-0">
+                @if (Model.PendingOrInProgressTasks.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light small text-muted">
+                                <tr>
+                                    <th>Task</th>
+                                    <th>Priority</th>
+                                    <th>Due Date</th>
+                                    <th>Progress</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var task in Model.PendingOrInProgressTasks)
+                                {
+                                    <tr>
+                                        <td>
+                                            <a asp-controller="Tasks" asp-action="Details" asp-route-id="@task.TaskId" class="fw-semibold text-decoration-none text-dark">
+                                                @task.TaskTitle
+                                            </a>
+                                            <div class="small text-muted">@task.Project?.ProjectName</div>
+                                        </td>
+                                        <td>
+                                            <span class="badge @(task.Priority == "Critical" ? "bg-danger" : task.Priority == "High" ? "bg-warning text-dark" : "bg-info text-dark")">
+                                                @task.Priority
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="small @(task.IsOverdue ? "text-danger fw-bold" : "text-muted")">
+                                                @task.DueDate.ToString("MMM dd, yyyy")
+                                                @if (task.IsOverdue)
+                                                {
+                                                    <span class="badge bg-danger ms-1">Overdue</span>
+                                                }
+                                            </span>
+                                        </td>
+                                        <td style="width: 140px;">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <div class="progress progress-thin flex-grow-1">
+                                                    <div class="progress-bar @(task.IsOverdue ? "bg-danger" : "bg-primary")" style="width: @task.ProgressPercentage%"></div>
+                                                </div>
+                                                <span class="small text-muted">@task.ProgressPercentage%</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <button type="button" class="btn btn-sm btn-outline-primary py-0 px-2"
+                                                    onclick="openQuickUpdateModal(@task.TaskId, '@task.TaskTitle.Replace("'", "\\'")', '@task.Status', @task.ProgressPercentage, @task.ActualHours)">
+                                                <i class="bi bi-pencil-square me-1"></i> Update
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center text-muted py-5">
+                        <i class="bi bi-emoji-smile fs-2 text-success d-block mb-2"></i>
+                        You have no active pending tasks right now. Relax or review completed work!
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Update Progress Modal -->
+<div class="modal fade" id="quickUpdateModal" tabindex="-1" aria-labelledby="quickUpdateModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-controller="Tasks" asp-action="UpdateProgress" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="TaskId" id="modalTaskId" />
+                <div class="modal-header">
+                    <h5 class="modal-title" id="quickUpdateModalLabel">Update Task Progress</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold text-muted">Task</label>
+                        <input type="text" id="modalTaskTitle" class="form-control" readonly />
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label small fw-semibold">Status</label>
+                            <select name="Status" id="modalStatus" class="form-select" onchange="onStatusChange(this.value)">
+                                <option value="Pending">Pending</option>
+                                <option value="In Progress">In Progress</option>
+                                <option value="Completed">Completed</option>
+                                <option value="On Hold">On Hold</option>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small fw-semibold">Progress Percentage (%)</label>
+                            <input type="number" name="ProgressPercentage" id="modalProgress" class="form-control" min="0" max="100" />
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Actual Hours Spent</label>
+                        <input type="number" step="0.5" name="ActualHours" id="modalActualHours" class="form-control" min="0" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Optional Note / Comment</label>
+                        <textarea name="Comment" class="form-control" rows="2" placeholder="Brief update note..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary btn-sm px-3">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Productivity Gauge (Half-Doughnut)
+        const score = @Model.ProductivityScore;
+        new Chart(document.getElementById('productivityGauge'), {
+            type: 'doughnut',
+            data: {
+                datasets: [{
+                    data: [score, 100 - score],
+                    backgroundColor: [score >= 80 ? '#22c55e' : score >= 60 ? '#f59e0b' : '#ef4444', '#e2e8f0'],
+                    circumference: 240,
+                    rotation: 240,
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '75%',
+                plugins: { tooltip: { enabled: false } }
+            }
+        });
+
+        function openQuickUpdateModal(taskId, title, status, progress, actualHours) {
+            document.getElementById('modalTaskId').value = taskId;
+            document.getElementById('modalTaskTitle').value = title;
+            document.getElementById('modalStatus').value = status;
+            document.getElementById('modalProgress').value = progress;
+            document.getElementById('modalActualHours').value = actualHours;
+            new bootstrap.Modal(document.getElementById('quickUpdateModal')).show();
+        }
+
+        function onStatusChange(newStatus) {
+            if (newStatus === 'Completed') {
+                document.getElementById('modalProgress').value = 100;
+            }
+        }
+    </script>
+}

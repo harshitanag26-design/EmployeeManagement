@@ -1,0 +1,79 @@
+@model EmployeeManagement.ViewModels.EmployeeFormViewModel
+@{
+    ViewData["Title"] = "Add New Employee";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h3 class="fw-bold mb-0">Add New Employee</h3>
+                <p class="text-muted small">Create an account and assign department and access role</p>
+            </div>
+            <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i> Back to Directory
+            </a>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <form asp-action="Create" method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Name" class="form-label small fw-semibold">Full Name</label>
+                        <input asp-for="Name" class="form-control" placeholder="e.g. Rahul Sharma" required />
+                        <span asp-validation-for="Name" class="text-danger small"></span>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="Email" class="form-label small fw-semibold">Work Email</label>
+                            <input asp-for="Email" class="form-control" placeholder="rahul@company.com" required />
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Password" class="form-label small fw-semibold">Initial Password</label>
+                            <input asp-for="Password" class="form-control" placeholder="••••••••" required />
+                            <span asp-validation-for="Password" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="RoleId" class="form-label small fw-semibold">Role</label>
+                            <select asp-for="RoleId" asp-items="Model.Roles" class="form-select" required>
+                                <option value="">-- Select Role --</option>
+                            </select>
+                            <span asp-validation-for="RoleId" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="DepartmentId" class="form-label small fw-semibold">Department</label>
+                            <select asp-for="DepartmentId" asp-items="Model.Departments" class="form-select">
+                                <option value="">-- Unassigned --</option>
+                            </select>
+                            <span asp-validation-for="DepartmentId" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4 form-check">
+                        <input asp-for="IsActive" class="form-check-input" />
+                        <label asp-for="IsActive" class="form-check-label small fw-semibold">Account Active (Permit login and task assignment)</label>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 border-top pt-3">
+                        <a asp-action="Index" class="btn btn-light btn-sm px-3">Cancel</a>
+                        <button type="submit" class="btn btn-primary btn-sm px-4">
+                            <i class="bi bi-check-lg me-1"></i> Create Employee
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

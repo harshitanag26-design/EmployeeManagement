@@ -1,0 +1,92 @@
+@model EmployeeManagement.ViewModels.LoginViewModel
+@{
+    ViewData["Title"] = "Sign In";
+    Layout = "_Layout";
+}
+
+<div class="row justify-content-center align-items-center" style="min-height: 75vh;">
+    <div class="col-md-5 col-lg-4">
+        <div class="card shadow-sm border-0 p-3">
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <div class="d-inline-flex p-3 bg-primary bg-opacity-10 text-primary rounded-circle mb-2">
+                        <i class="bi bi-kanban-fill fs-2"></i>
+                    </div>
+                    <h3 class="fw-bold">Welcome Back</h3>
+                    <p class="text-muted small">Employee Task & Productivity System</p>
+                </div>
+
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="alert alert-danger py-2 small" role="alert">
+                        <div asp-validation-summary="All" class="mb-0"></div>
+                    </div>
+                }
+
+                <form asp-action="Login" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="ReturnUrl" />
+
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label small fw-semibold text-secondary">Email Address</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-envelope"></i></span>
+                            <input asp-for="Email" id="loginEmail" class="form-control" placeholder="name@company.com" required autofocus />
+                        </div>
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label small fw-semibold text-secondary">Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-lock"></i></span>
+                            <input asp-for="Password" id="loginPassword" class="form-control" placeholder="••••••••" required />
+                        </div>
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        <input asp-for="RememberMe" class="form-check-input" />
+                        <label asp-for="RememberMe" class="form-check-label small text-secondary">Remember this device</label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold">
+                        <i class="bi bi-box-arrow-in-right me-1"></i> Sign In
+                    </button>
+                </form>
+
+                <!-- Demo quick-fill accounts -->
+                <div class="mt-4 pt-3 border-top">
+                    <div class="text-muted small fw-semibold mb-2 text-center">
+                        <i class="bi bi-info-circle me-1"></i> Quick Demo Logins
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-outline-danger btn-sm text-start" onclick="fillCredentials('admin@company.com', 'Admin@123')">
+                            <i class="bi bi-shield-lock me-1"></i> <strong>Admin:</strong> admin@company.com
+                        </button>
+                        <button type="button" class="btn btn-outline-primary btn-sm text-start" onclick="fillCredentials('manager@company.com', 'Manager@123')">
+                            <i class="bi bi-person-workspace me-1"></i> <strong>Manager:</strong> manager@company.com
+                        </button>
+                        <button type="button" class="btn btn-outline-success btn-sm text-start" onclick="fillCredentials('rahul@company.com', 'Employee@123')">
+                            <i class="bi bi-person me-1"></i> <strong>Employee (Rahul):</strong> rahul@company.com
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm text-start" onclick="fillCredentials('priya@company.com', 'Employee@123')">
+                            <i class="bi bi-person me-1"></i> <strong>Employee (Priya):</strong> priya@company.com
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function fillCredentials(email, password) {
+            document.getElementById('loginEmail').value = email;
+            document.getElementById('loginPassword').value = password;
+        }
+    </script>
+}
